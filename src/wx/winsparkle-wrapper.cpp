@@ -7,12 +7,14 @@
 #include "winsparkle-wrapper.h"
 #include "wx/msw/private.h"
 
+
 WinSparkleDllWrapper *WinSparkleDllWrapper::GetInstance()
 {
     static WinSparkleDllWrapper instance;
 
     return &instance;
 }
+
 
 WinSparkleDllWrapper::WinSparkleDllWrapper()
 {
@@ -46,11 +48,14 @@ WinSparkleDllWrapper::WinSparkleDllWrapper()
     winsparkle_cleanup              = reinterpret_cast<func_win_sparkle_cleanup>(winsparkle_dll->GetSymbol("win_sparkle_cleanup"));
 }
 
+
 WinSparkleDllWrapper::~WinSparkleDllWrapper()
 {
     delete winsparkle_dll;
 
     // Wait for the program to exit and release the DLL before deleting the temp file, otherwise access is denied.
+    // This is needed due to `win_sparkle_init` locking the file until app execution is over.
+    // `win_sparkle_cleanup` does not release the lock.
     char executable[] = "cmd.exe";
     char cmd_switch[] = "/c";
 
@@ -67,10 +72,12 @@ WinSparkleDllWrapper::~WinSparkleDllWrapper()
     wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_HIDE_CONSOLE);
 }
 
+
 void win_sparkle_init()
 {
     WinSparkleDllWrapper::GetInstance()->winsparkle_init();
 }
+
 
 void win_sparkle_check_update_with_ui()
 {
