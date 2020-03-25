@@ -194,24 +194,6 @@ wxString wxvbamApp::GetAbsolutePath(wxString path)
     return path;
 }
 
-#ifndef NO_ONLINEUPDATES
-#include "../common/version_cpp.h"
-
-#ifdef __WXMSW__
-#include "winsparkle-wrapper.h"
-#endif // __WXMSW__
-
-static void init_check_for_updates()
-{
-#ifdef __WXMSW__
-    wxString version(vbam_version);
-    win_sparkle_set_appcast_url("http://data.vba-m.com/appcast.xml");
-    win_sparkle_set_app_details(L"visualboyadvance-m", L"VisualBoyAdvance-M", version.wc_str());
-    win_sparkle_init();
-#endif // __WXMSW__
-}
-#endif // NO_ONLINEUPDATES
-
 #ifdef __WXMSW__
 #include <wx/msw/private.h>
 #include <windows.h>
@@ -470,7 +452,6 @@ bool wxvbamApp::OnInit()
     frame->Show(true);
 
 #ifndef NO_ONLINEUPDATES
-    init_check_for_updates();
 #endif
 
     return true;
