@@ -784,12 +784,15 @@ set(
 
 set(ALL_HDR_WX ${HDR_WX})
 
-list(APPEND ALL_SRC_WX winsparkle-wrapper.cpp)
-list(APPEND ALL_HDR_WX winsparkle-wrapper.h winsparkle-rc.h)
-
 if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
-    list(APPEND SRC_WX winsparkle-wrapper.cpp)
-    list(APPEND HDR_WX winsparkle-wrapper.h winsparkle-rc.h)
+    list(APPEND HDR_WX autoupdater/autoupdater.h)
+    list(APPEND SRC_WX autoupdater/wxmsw/autoupdater.cpp)
+    list(APPEND ALL_SRC_WX autoupdater/wxmsw/winsparkle-wrapper.cpp)
+    list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-wrapper.h)
+    list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
+    list(APPEND SRC_WX autoupdater/wxmsw/winsparkle-wrapper.cpp)
+    list(APPEND HDR_WX autoupdater/wxmsw/winsparkle-wrapper.h)
+    list(APPEND HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
 endif()
 
 set(
@@ -880,7 +883,7 @@ if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
         set(WINSPARKLE_DLL ${CMAKE_SOURCE_DIR}/dependencies/WinSparkle-0.6.0/Release/WinSparkle.dll)
     endif()
 
-    configure_file(winsparkle-path.h.in ${CMAKE_BINARY_DIR}/winsparkle-path.h)
+    configure_file(autoupdater/wxmsw/winsparkle-path.h.in ${CMAKE_BINARY_DIR}/winsparkle-path.h)
 endif()
 
 target_link_libraries(
