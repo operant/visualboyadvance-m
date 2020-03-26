@@ -20,5 +20,5 @@ void checkUpdatesUi()
 
 void shutdownAutoupdater()
 {
-    winsparkle_cleanup();
+    win_sparkle_cleanup();
 }

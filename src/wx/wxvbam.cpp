@@ -41,6 +41,10 @@ int main(int argc, char** argv)
 }
 #endif
 
+#ifndef NO_ONLINEUPDATES
+#include "autoupdater/autoupdater.h"
+#endif // NO_ONLINEUPDATES
+
 // Initializer for struct cmditem
 cmditem new_cmditem(const wxString cmd, const wxString name, int cmd_id,
                     int mask_flags, wxMenuItem* mi)
@@ -452,8 +456,8 @@ bool wxvbamApp::OnInit()
     frame->Show(true);
 
 #ifndef NO_ONLINEUPDATES
+    initAutoupdater();
 #endif
-
     return true;
 }
 
@@ -704,8 +708,8 @@ wxvbamApp::~wxvbamApp() {
     }
     delete overrides;
 
-#if defined(__WXMSW__) && !defined(NO_ONLINEUPDATES)
-    win_sparkle_cleanup();
+#ifndef NO_ONLINEUPDATES
+    shutdownAutoupdater();
 #endif
 }
 

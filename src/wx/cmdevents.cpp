@@ -2705,10 +2705,15 @@ EVT_HANDLER(Customize, "Customize UI...")
         update_opts();
 }
 
+#ifndef NO_ONLINEUPDATES
+#include "autoupdater/autoupdater.h"
+#endif // NO_ONLINEUPDATES
+
 EVT_HANDLER(UpdateEmu, "Check for updates...")
 {
 #ifndef NO_ONLINEUPDATES
-#endif
+    checkUpdatesUi();
+#endif // NO_ONLINEUPDATES
 }
 
 EVT_HANDLER(FactoryReset, "Factory Reset...")
