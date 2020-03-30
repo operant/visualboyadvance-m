@@ -783,13 +783,16 @@ set(
 )
 
 set(ALL_HDR_WX ${HDR_WX})
+# make files included for gettext pot generation
+list(APPEND ALL_SRC_WX autoupdater/wxmsw/autoupdater.cpp)
+list(APPEND ALL_HDR_WX autoupdater/autoupdater.h)
+list(APPEND ALL_SRC_WX autoupdater/wxmsw/winsparkle-wrapper.cpp)
+list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-wrapper.h)
+list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
 
 if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
-    list(APPEND HDR_WX autoupdater/autoupdater.h)
     list(APPEND SRC_WX autoupdater/wxmsw/autoupdater.cpp)
-    list(APPEND ALL_SRC_WX autoupdater/wxmsw/winsparkle-wrapper.cpp)
-    list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-wrapper.h)
-    list(APPEND ALL_HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
+    list(APPEND HDR_WX autoupdater/autoupdater.h)
     list(APPEND SRC_WX autoupdater/wxmsw/winsparkle-wrapper.cpp)
     list(APPEND HDR_WX autoupdater/wxmsw/winsparkle-wrapper.h)
     list(APPEND HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
