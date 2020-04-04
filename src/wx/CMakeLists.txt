@@ -798,6 +798,13 @@ if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
     list(APPEND HDR_WX autoupdater/wxmsw/winsparkle-rc.h)
 endif()
 
+if(APPLE AND ENABLE_ONLINEUPDATES)
+    list(APPEND HDR_WX autoupdater/autoupdater.h)
+    list(APPEND SRC_WX autoupdater/macos/autoupdater.cpp)
+    list(APPEND SRC_WX autoupdater/macos/sparkle-wrapper.mm)
+    list(APPEND HDR_WX autoupdater/macos/sparkle-wrapper.h)
+endif()
+
 set(
     RES_WX
     ${XRC_SOURCES}
@@ -887,6 +894,46 @@ if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
     endif()
 
     configure_file(autoupdater/wxmsw/winsparkle-path.h.in ${CMAKE_BINARY_DIR}/winsparkle-path.h)
+endif()
+
+if(APPLE AND ENABLE_ONLINEUPDATES)
+
+    include(FetchContent)
+    FetchContent_Declare(Sparkle
+        URL "https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2"
+        URL_HASH SHA512=fa7e9736d4319bf839cd5e11177d1ddac78c38048be7e59b5c94ea76c9ffc02919dd17890295d21b7f0e35afe0ec9aba9ba36912caed6e5017420345f9f66682
+    )
+    FetchContent_MakeAvailable(Sparkle)
+
+    find_library(SPARKLE_FRAMEWORK
+      NAMES Sparkle
+      HINTS ${sparkle_SOURCE_DIR}
+    )
+    find_path(SPARKLE_INCLUDE_DIR Sparkle.h HINTS ${SPARKLE_FRAMEWORK}/Headers)
+    target_include_directories(
+        visualboyadvance-m
+        PRIVATE ${SPARKLE_INCLUDE_DIR}
+    )
+
+    set(APPCAST_URL "https://data.vba-m.com/appcast.xml")
+    set(CCS1 mkdir -p ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Frameworks)
+    # The following commands *should* be run to make sure Sparkle is not going
+    # to bug randomly (version=1.23)
+    set(CCS2 cp -a ${SPARKLE_FRAMEWORK} ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Frameworks/Sparkle.framework)
+    set(CCS3 defaults write ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Info.plist CFBundleVersion -string "${VERSION}")
+    set(CCS4 defaults write ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Info.plist SUEnableAutomaticChecks -bool YES)
+    #set(CCS5 defaults write ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Info.plist SUPublicEDKey -string "${PUBLIC_KEY}")
+    set(CCS6 defaults write ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Info.plist SUFeedURL -string "${APPCAST_URL}")
+    add_custom_command(TARGET visualboyadvance-m POST_BUILD
+      COMMAND ${CCS1}
+      COMMAND ${CCS2}
+      COMMAND ${CCS3}
+      COMMAND ${CCS4}
+      #COMMAND ${CCS5}
+      COMMAND ${CCS6}
+    )
+
+    TARGET_LINK_LIBRARIES(visualboyadvance-m ${SPARKLE_FRAMEWORK})
 endif()
 
 target_link_libraries(
@@ -1168,9 +1215,23 @@ if(UPSTREAM_RELEASE AND APPLE)
         add_custom_command(
             TARGET visualboyadvance-m
             POST_BUILD
-            COMMAND codesign -s "Developer ID Application" --deep ./visualboyadvance-m.app
+            COMMAND codesign --sign "Developer ID Application" --force ./visualboyadvance-m.app
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
+
+        if(EXISTS ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Frameworks)
+            # Sign frameworks individually, like Xcode.
+            file(GLOB frameworks ${CMAKE_BINARY_DIR}/visualboyadvance-m.app/Contents/Frameworks/*)
+            foreach(framework ${frameworks})
+                message(STATUS "Signing framework: " ${framework})
+                add_custom_command(
+                    TARGET visualboyadvance-m
+                    POST_BUILD
+                    COMMAND codesign --sign "Developer ID Application" --force ${framework}
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                )
+            endforeach()
+        endif()
     else()
         message(WARNING "Set the environment variable LOGIN_KEYCHAIN_PASSWORD to your login keychain password to codesign.")
     endif()

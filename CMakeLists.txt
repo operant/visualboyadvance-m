@@ -176,8 +176,8 @@ option(ENABLE_FFMPEG "Enable ffmpeg A/V recording" ${FFMPEG_DEFAULT})
 
 set(ONLINEUPDATES_DEFAULT OFF)
 
-if(WIN32 AND (X64 OR X86))
-    set(ONLINEUPDATES_DEFAULT ON) # use winsparkle
+if((WIN32 AND (X64 OR X86)) OR APPLE) # winsparkle/sparkle
+    set(ONLINEUPDATES_DEFAULT ON)
 endif()
 
 option(ENABLE_ONLINEUPDATES "Enable online update checks" ${ONLINEUPDATES_DEFAULT})
