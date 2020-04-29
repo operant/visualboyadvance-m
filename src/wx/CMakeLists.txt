@@ -893,6 +893,10 @@ if(WIN32 AND (AMD64 OR X86_32) AND ENABLE_ONLINEUPDATES)
         set(WINSPARKLE_DLL ${CMAKE_SOURCE_DIR}/dependencies/WinSparkle-0.6.0/Release/WinSparkle.dll)
     endif()
 
+    if(NOT HTTPS)
+        add_definitions(-DNO_HTTPS)
+    endif()
+
     configure_file(autoupdater/wxmsw/winsparkle-path.h.in ${CMAKE_BINARY_DIR}/winsparkle-path.h)
 endif()
 

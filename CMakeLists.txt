@@ -181,6 +181,7 @@ if((WIN32 AND (X64 OR X86)) OR APPLE) # winsparkle/sparkle
 endif()
 
 option(ENABLE_ONLINEUPDATES "Enable online update checks" ${ONLINEUPDATES_DEFAULT})
+option(HTTPS "Use https URL for winsparkle" ON)
 
 set(LTO_DEFAULT ON)
 
